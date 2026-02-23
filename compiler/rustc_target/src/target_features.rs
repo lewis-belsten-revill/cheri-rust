@@ -1194,6 +1194,12 @@ impl Target {
                         // a program while the rest doesn't know they even exist.
                         FeatureConstraints { required: &[], incompatible: &["d"] }
                     }
+                    "l64pc128d" | "il32pc64d" => {
+                        FeatureConstraints { required: &["d"], incompatible: &["e"] }
+                    }
+                    "il32pc64f" | "l64pc128f" => {
+                        FeatureConstraints { required: &["f"], incompatible: &["e"] }
+                    }
                     "lp64e" => {
                         // As above, `e` is not required.
                         NOTHING

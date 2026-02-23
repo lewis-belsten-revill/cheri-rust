@@ -50,6 +50,7 @@ const STAGE0_MISSING_TARGETS: &[&str] = &[
     "aarch64v8r-unknown-none-softfloat",
     "riscv32cheriot-unknown-cheriotrtos",
     "riscv32cheriot-unknown-cheriotrtos.facade",
+    "riscv64cheri-codasip-linux-musl",
 ];
 
 /// Minimum version threshold for libstdc++ required when using prebuilt LLVM
