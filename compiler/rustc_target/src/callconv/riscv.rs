@@ -419,12 +419,13 @@ where
     Ty: TyAbiInterface<'a, C> + Copy,
     C: HasDataLayout + HasTargetSpec,
 {
-    let flen = match &cx.target_spec().llvm_abiname {
-        LlvmAbi::Ilp32f | LlvmAbi::Lp64f => 32,
-        LlvmAbi::Ilp32d | LlvmAbi::Lp64d => 64,
+    let flen = match &cx.target_spec().llvm_abiname[..] {
+        // TODO: Could we be safe to just check if it ends with 'f' or 'd'?
+        "ilp32f" | "lp64f" | "il32pc64f" | "l64pc128f" => 32,
+        "ilp32d" | "lp64d" | "il32pc64d" | "l64pc128d" => 64,
         _ => 0,
     };
-    let xlen = cx.data_layout().pointer_size().bits();
+    let xlen = cx.data_layout().pointer_offset().bits();
 
     let mut avail_gprs = 8;
     let mut avail_fprs = 8;

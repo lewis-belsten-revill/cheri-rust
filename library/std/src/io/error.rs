@@ -8,14 +8,14 @@ mod tests;
 // This assumption is invalid on 64-bit UEFI, where error codes are 64-bit.
 // Therefore, the packed representation is explicitly disabled for UEFI
 // targets, and the unpacked representation must be used instead.
-#[cfg(all(target_pointer_width = "64", not(target_os = "uefi")))]
+#[cfg(all(target_pointer_width = "64", not(target_family = "cheri"), not(target_os = "uefi")))]
 mod repr_bitpacked;
-#[cfg(all(target_pointer_width = "64", not(target_os = "uefi")))]
+#[cfg(all(target_pointer_width = "64", not(target_family = "cheri"), not(target_os = "uefi")))]
 use repr_bitpacked::Repr;
 
-#[cfg(any(not(target_pointer_width = "64"), target_os = "uefi"))]
+#[cfg(any(not(target_pointer_width = "64"), target_family = "cheri", target_os = "uefi"))]
 mod repr_unpacked;
-#[cfg(any(not(target_pointer_width = "64"), target_os = "uefi"))]
+#[cfg(any(not(target_pointer_width = "64"), target_family = "cheri", target_os = "uefi"))]
 use repr_unpacked::Repr;
 
 use crate::{error, fmt, result, sys};

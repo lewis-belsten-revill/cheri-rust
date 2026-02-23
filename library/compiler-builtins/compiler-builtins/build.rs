@@ -26,6 +26,11 @@ fn main() {
         return;
     }
 
+    // Codasip's CHERI Musl includes all the builtins.
+    if target.vendor == "codasip" && target.triple.contains("cheri") && target.env == "musl" {
+        return;
+    }
+
     // CHERIoT RTOS includes all the builtins
     if target.os == "cheriotrtos" {
         return;
@@ -621,6 +626,7 @@ mod c {
                 );
             }
         } else {
+            cfg.target(&target.triple);
             cfg.compile("libcompiler-rt.a");
         }
     }

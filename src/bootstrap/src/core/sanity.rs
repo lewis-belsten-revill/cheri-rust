@@ -41,6 +41,7 @@ const STAGE0_MISSING_TARGETS: &[&str] = &[
     "x86_64-unknown-linux-gnutsan",
     "riscv32cheriot-unknown-cheriotrtos",
     "riscv32cheriot-unknown-cheriotrtos.facade",
+    "riscv64cheri-codasip-linux-musl",
 ];
 
 /// Minimum version threshold for libstdc++ required when using prebuilt LLVM
