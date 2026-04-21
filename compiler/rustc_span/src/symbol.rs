@@ -752,6 +752,8 @@ symbols! {
         crate_name,
         crate_type,
         crate_visibility_modifier,
+        // TODO: This should be yreg once rvy lands?
+        creg,
         crt_dash_static: "crt-static",
         csky,
         csky_target_feature,
