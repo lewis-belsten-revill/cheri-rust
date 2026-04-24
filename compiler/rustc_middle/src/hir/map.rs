@@ -985,7 +985,6 @@ impl<'tcx> TyCtxt<'tcx> {
             }
             _ => self.hir_span_with_body(hir_id),
         };
-        debug_assert_eq!(span.ctxt(), self.hir_span_with_body(hir_id).ctxt());
         span
     }
 
