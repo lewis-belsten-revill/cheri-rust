@@ -504,7 +504,7 @@ macro_rules! array_impl_default {
     };
 }
 
-array_impl_default! {32, T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T}
+array_impl_default! {40, T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T T}
 
 impl<T, const N: usize> [T; N] {
     /// Returns an array of the same size as `self`, with function `f` applied to each element
