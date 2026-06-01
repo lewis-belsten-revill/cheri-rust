@@ -587,6 +587,7 @@ static RISCV_FEATURES: &[(&str, Stability, ImpliedFeatures)] = &[
     ("a", Stable, &["zaamo", "zalrsc"]),
     ("b", Stable, &["zba", "zbb", "zbs"]),
     ("c", Stable, &["zca"]),
+    ("cap-mode", Stable, &[]),
     ("d", Unstable(sym::riscv_target_feature), &["f"]),
     ("e", Unstable(sym::riscv_target_feature), &[]),
     ("f", Unstable(sym::riscv_target_feature), &["zicsr"]),
