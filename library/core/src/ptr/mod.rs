@@ -1464,7 +1464,7 @@ unsafe fn swap_nonoverlapping_bytes(x: *mut u8, y: *mut u8, bytes: NonZero<usize
         }
     }
 
-    // Same as `swap_nonoverlapping_bytes`, but accepts at most 1+2+4=7 bytes
+    // Same as `swap_nonoverlapping_bytes`, but accepts at most 1+2+4+8=15 bytes
     #[inline]
     unsafe fn swap_nonoverlapping_short(x: *mut u8, y: *mut u8, bytes: NonZero<usize>) {
         // Tail handling for auto-vectorized code sometimes has element-at-a-time behaviour,
@@ -1486,11 +1486,11 @@ unsafe fn swap_nonoverlapping_bytes(x: *mut u8, y: *mut u8, bytes: NonZero<usize
                 }
             )+};
         }
-        swap_prefix!(4 2 1);
+        swap_prefix!(8 4 2 1);
         debug_assert_eq!(i, bytes);
     }
 
-    const CHUNK_SIZE: usize = size_of::<usize>();
+    const CHUNK_SIZE: usize = size_of::<*const ()>();
     let bytes = bytes.get();
 
     let chunks = bytes / CHUNK_SIZE;
@@ -1501,10 +1501,10 @@ unsafe fn swap_nonoverlapping_bytes(x: *mut u8, y: *mut u8, bytes: NonZero<usize
         unsafe { swap_nonoverlapping_chunks::<CHUNK_SIZE>(x.cast(), y.cast(), chunks) };
     }
     if let Some(tail) = NonZero::new(tail) {
-        const { assert!(CHUNK_SIZE <= 8) };
+        const { assert!(CHUNK_SIZE <= 16) };
         let delta = chunks * CHUNK_SIZE;
         // SAFETY: the tail length is below CHUNK SIZE because of the remainder,
-        // and CHUNK_SIZE is at most 8 by the const assert, so tail <= 7
+        // and CHUNK_SIZE is at most 16 by the const assert, so tail <= 15
         unsafe { swap_nonoverlapping_short(x.add(delta), y.add(delta), tail) };
     }
 }
