@@ -59,7 +59,7 @@ mod thread_info;
 mod imp {
     use libc::{
         MAP_ANON, MAP_FAILED, MAP_FIXED, MAP_PRIVATE, PROT_NONE, PROT_READ, PROT_WRITE, SA_ONSTACK,
-        SA_SIGINFO, SIG_DFL, SIGBUS, SIGSEGV, SS_DISABLE, sigaction, sigaltstack, sighandler_t,
+        SA_SIGINFO, SIG_DFL, SIGBUS, SIGSEGV, SS_DISABLE, sigaction, sigaltstack,
     };
     #[cfg(not(all(target_os = "linux", target_env = "gnu")))]
     use libc::{mmap as mmap64, mprotect, munmap};
@@ -72,6 +72,33 @@ mod imp {
     use crate::sync::atomic::{Atomic, AtomicBool, AtomicPtr, AtomicUsize, Ordering};
     use crate::sys::pal::unix::os;
     use crate::{io, mem, ptr};
+
+    #[cfg(target_env = "musl")]
+    fn set_handler_id(action: &mut sigaction, id: libc::size_t) {
+        action.sa_sigaction = libc::sa_union_t { sa_handler: libc::sh_union_t { sighandler_id: id } };
+    }
+    #[cfg(target_env = "musl")]
+    fn set_action_fn(action: &mut sigaction, action_fn: unsafe extern "C" fn(i32, *mut libc::siginfo_t, *mut libc::c_void)) {
+        action.sa_sigaction = libc::sa_union_t { sa_sigaction: action_fn };
+    }
+    #[cfg(target_env = "musl")]
+    fn handler_id_eq(action: &sigaction, id: libc::size_t) -> bool {
+        unsafe { action.sa_sigaction.sa_handler.sighandler_id == id }
+    }
+    #[cfg(not(target_env = "musl"))]
+    fn set_handler_id(action: &mut sigaction, id: libc::size_t) {
+        action.sa_sigaction = id;
+    }
+    #[cfg(not(target_env = "musl"))]
+    fn set_action_fn(action: &mut sigaction, action_fn: unsafe extern "C" fn(i32, *mut libc::siginfo_t, *mut libc::c_void)) {
+        action.sa_sigaction = action_fn as libc::sighandler_t;
+    }
+    #[cfg(not(target_env = "musl"))]
+    fn handler_id_eq(action: &sigaction, id: libc::size_t) -> bool {
+        action.sa_sigaction == id
+    }
+
+
 
     // Signal handler for the SIGSEGV and SIGBUS handlers. We've got guard pages
     // (unmapped pages) at the end of every thread's stack, so if a thread ends
@@ -135,7 +162,7 @@ mod imp {
         // Unregister ourselves by reverting back to the default behavior.
         // SAFETY: assuming all platforms define struct sigaction as "zero-initializable"
         let mut action: sigaction = unsafe { mem::zeroed() };
-        action.sa_sigaction = SIG_DFL;
+        set_handler_id(&mut action, SIG_DFL);
         // SAFETY: pray this is a well-behaved POSIX implementation of fn sigaction
         unsafe { sigaction(signum, &action, ptr::null_mut()) };
 
@@ -167,7 +194,7 @@ mod imp {
             // SAFETY: just fetches the current signal handler into action
             unsafe { sigaction(signal, ptr::null_mut(), &mut action) };
             // Configure our signal handler if one is not already set.
-            if action.sa_sigaction == SIG_DFL {
+            if handler_id_eq(&action, SIG_DFL) {
                 if !NEED_ALTSTACK.load(Ordering::Relaxed) {
                     // haven't set up our sigaltstack yet
                     NEED_ALTSTACK.store(true, Ordering::Release);
@@ -181,9 +208,7 @@ mod imp {
                 }
 
                 action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-                action.sa_sigaction = signal_handler
-                    as unsafe extern "C" fn(i32, *mut libc::siginfo_t, *mut libc::c_void)
-                    as sighandler_t;
+                set_action_fn(&mut action, signal_handler);
                 // SAFETY: only overriding signals if the default is set
                 unsafe { sigaction(signal, &action, ptr::null_mut()) };
             }
