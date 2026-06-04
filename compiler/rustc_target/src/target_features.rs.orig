@@ -591,7 +591,6 @@ static RISCV_FEATURES: &[(&str, Stability, ImpliedFeatures)] = &[
     ("a", Stable, &["zaamo", "zalrsc"]),
     ("b", Stable, &["zba", "zbb", "zbs"]),
     ("c", Stable, &["zca"]),
-    ("cap-mode", Stable, &[]),
     ("d", Unstable(sym::riscv_target_feature), &["f"]),
     ("e", Unstable(sym::riscv_target_feature), &[]),
     ("f", Unstable(sym::riscv_target_feature), &["zicsr"]),
@@ -1205,13 +1204,17 @@ impl Target {
                         // a program while the rest doesn't know they even exist.
                         FeatureConstraints { required: &[], incompatible: &["d"] }
                     }
-                    LlvmAbi::L64pc128d | LlvmAbi::Il32pc64d => {
+<<<<<<< HEAD
+                    LlvmAbi::Lp64e => {
+=======
+                    "l64pc128d" | "il32pc64d" => {
                         FeatureConstraints { required: &["d"], incompatible: &["e"] }
                     }
-                    LlvmAbi::Il32pc64f | LlvmAbi::L64pc128f => {
+                    "il32pc64f" | "l64pc128f" => {
                         FeatureConstraints { required: &["f"], incompatible: &["e"] }
                     }
-                    LlvmAbi::Lp64e => {
+                    "lp64e" => {
+>>>>>>> aadb8c116043 (Changes required to build for Codasip X730 CHERI CPU)
                         // As above, `e` is not required.
                         NOTHING
                     }

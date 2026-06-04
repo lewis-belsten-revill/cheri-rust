@@ -1,10 +1,10 @@
 use crate::spec::{
-    Arch, Cc, Env, LinkerFlavor, Lld, Os, PanicStrategy, RelocModel, Target, TargetMetadata, TargetOptions, cvs, crt_objects,
+    Arch, Cc, Env, LinkerFlavor, Lld, LlvmAbi, Os, PanicStrategy, RelocModel, Target, TargetMetadata, TargetOptions, cvs, crt_objects,
     LinkSelfContainedDefault
 };
 
 pub(crate) fn target() -> Target {
-    let abi = "l64pc128d";
+    let abi = LlvmAbi::L64pc128d;
     Target {
         data_layout: "e-m:e-pf200:128:128:128:64-p:64:64-i64:64-i128:128-n32:64-S128-A200-P200-G200".into(),
         llvm_target: "riscv64-codasip-linux-musl".into(),
@@ -21,7 +21,7 @@ pub(crate) fn target() -> Target {
             linker_flavor: LinkerFlavor::Gnu(Cc::No, Lld::Yes),
             linker: None,
             cpu: "codasip-x730-spark".into(),
-            llvm_abiname: abi.into(),
+            llvm_abiname: abi,
             max_atomic_width: Some(128),
             features: "+64bit,+m,+a,+f,+d,+c,+zicsr,+zifencei,+zcheripurecap,+cap-mode".into(),
             panic_strategy: PanicStrategy::Abort,

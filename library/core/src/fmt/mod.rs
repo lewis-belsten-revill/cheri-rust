@@ -900,11 +900,15 @@ impl<'a> Arguments<'a> {
         // Outside const eval, the `bits & 1 == 1` check will fail, so the resulting usize will
         // never be used.
         let bits: usize = unsafe {
-            // On CHERIoT we can force this into a `ptrtoint` by transmuting it into an u64 and
-            // casting it into a usize.
-            #[cfg(target_family = "cheriot")]
+            let p = self.args.as_ptr();
+            let p: *const *mut _ = &p;
+            #[cfg(target_pointer_width = "128")]
             {
-                crate::mem::transmute::<_, u64>(self.args) as usize
+                *(p as *const u128) as usize
+            }
+            #[cfg(target_pointer_width = "64")]
+            {
+                *(p as *const u64) as usize
             }
         };
 
